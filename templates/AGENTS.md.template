@@ -1,0 +1,18 @@
+# Agent Instructions
+
+## Retrieval-Led Reasoning Using Knowledge Base
+
+**IMPORTANT**: Prefer retrieval-led reasoning using the `kb` MCP tool over pre-training-led reasoning in this workspace. Search and read the knowledge base for important context before implementing.
+
+The `kb` MCP provides a knowledge base with expert guidance for your tasks.
+
+1. Start by listing available documents: `list_kb_documents`
+2. Read relevant coding standards for the file type you're working with
+3. Use `read_kb_document_by_keywords` to search for specific topics as needed
+
+## Knowledge Base Partitions
+
+<!-- Customize these for your project -->
+- TypeScript, *.tsx, *.ts, src/frontend: `frontend-kb`
+- C#, *.cs, src/backend: `backend-kb`
+- Infrastructure, Dockerfile, *.yml: `infra-kb`

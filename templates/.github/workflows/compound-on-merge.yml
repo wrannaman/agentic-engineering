@@ -1,0 +1,34 @@
+# Auto-compound: Extract learnings when PRs merge to main
+#
+# This action runs the compound extraction process on every merged PR,
+# creating a follow-up PR to the KB docs repo with any new learnings.
+#
+# A human reviews the learnings PR before it merges — bad learnings
+# poisoning the KB would be worse than no learnings.
+
+name: Compound on Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  compound:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract learnings
+        run: |
+          echo "TODO: Implement compound extraction"
+          echo "This should:"
+          echo "1. Analyze the PR diff and review comments"
+          echo "2. Extract patterns and gotchas"
+          echo "3. Create a PR to the KB docs repo with new learnings"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          KB_DOCS_REPO: ${{ vars.KB_DOCS_REPO }}

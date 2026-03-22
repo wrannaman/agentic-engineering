@@ -1,0 +1,118 @@
+# Review-to-KB: Auto-propose KB updates from PR review comments
+#
+# When a PR merges, this action:
+# 1. Finds review comments that resulted in code changes
+# 2. Extracts the correction (what was wrong, what the fix was)
+# 3. Opens a PR to the KB docs repo proposing the update
+#
+# A human reviews the KB PR before it merges.
+# This is the highest-leverage feedback loop in the system.
+
+name: Review to KB
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  extract-learnings:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch review comments
+        id: comments
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+
+          # Get all review comments on this PR
+          gh api repos/${{ github.repository }}/pulls/${PR_NUMBER}/comments \
+            --jq '.[] | {body: .body, path: .path, diff_hunk: .diff_hunk, user: .user.login}' \
+            > /tmp/review-comments.json
+
+          # Get review threads (top-level reviews)
+          gh api repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews \
+            --jq '.[] | select(.state == "CHANGES_REQUESTED" or .state == "COMMENTED") | {body: .body, user: .user.login}' \
+            > /tmp/reviews.json
+
+          # Count comments
+          COMMENT_COUNT=$(cat /tmp/review-comments.json | wc -l)
+          echo "comment_count=${COMMENT_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Found ${COMMENT_COUNT} review comments"
+
+      - name: Extract KB updates
+        if: steps.comments.outputs.comment_count > 0
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Get the PR diff
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          gh api repos/${{ github.repository }}/pulls/${PR_NUMBER} \
+            --header "Accept: application/vnd.github.diff" \
+            > /tmp/pr-diff.txt
+
+          # Use Claude to extract KB-worthy corrections
+          # Input: review comments + diff
+          # Output: proposed KB document updates
+          cat > /tmp/extract-prompt.txt << 'PROMPT'
+          You are analyzing PR review comments to extract knowledge base updates.
+
+          Given the review comments and the PR diff, identify corrections that represent
+          reusable team knowledge — things an AI agent should know for next time.
+
+          For each correction found, output a markdown file with this format:
+
+          ---
+          keywords: [relevant keywords]
+          last_reviewed: [today]
+          source_pr: #[PR number]
+          status: draft
+          ---
+
+          # [Pattern or Convention Name]
+
+          ## What To Do
+          [The correct approach]
+
+          ## What NOT To Do
+          [The mistake that was corrected]
+
+          ## Why
+          [Explanation from the review comment]
+
+          ---
+
+          Only extract corrections that are REUSABLE — things that would help an agent
+          working on similar code in the future. Skip:
+          - One-off fixes specific to this PR
+          - Style preferences that a linter should catch
+          - Typos or minor wording changes
+
+          If there are no reusable corrections, output: NO_KB_UPDATES
+          PROMPT
+
+          echo "TODO: Call Claude API with review comments + diff + prompt"
+          echo "TODO: Write proposed KB docs to /tmp/kb-updates/"
+          echo "TODO: Create PR to KB docs repo if updates found"
+
+      - name: Create KB update PR
+        if: steps.comments.outputs.comment_count > 0
+        env:
+          GH_TOKEN: ${{ secrets.KB_DOCS_REPO_TOKEN }}
+          KB_DOCS_REPO: ${{ vars.KB_DOCS_REPO }}
+        run: |
+          echo "TODO: If /tmp/kb-updates/ has files:"
+          echo "  1. Clone KB docs repo"
+          echo "  2. Copy proposed docs into appropriate partition"
+          echo "  3. Create branch: kb-update/pr-${{ github.event.pull_request.number }}"
+          echo "  4. Commit and push"
+          echo "  5. Open PR with summary of extracted learnings"
+          echo ""
+          echo "The PR description should link back to the source PR"
+          echo "so reviewers can verify the extraction is accurate."

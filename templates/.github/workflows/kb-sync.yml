@@ -1,0 +1,25 @@
+# KB Sync: Trigger knowledge base re-index when docs change
+#
+# When docs are pushed to main, notify the KB server to re-sync.
+
+name: KB Sync on Push
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**/*.md'
+      - 'kb/**/*.md'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger KB sync
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $KB_AUTH_TOKEN" \
+            "$KB_SERVER_URL/api/sync"
+        env:
+          KB_AUTH_TOKEN: ${{ secrets.KB_AUTH_TOKEN }}
+          KB_SERVER_URL: ${{ vars.KB_SERVER_URL }}

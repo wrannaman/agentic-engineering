@@ -1,0 +1,150 @@
+# One-Shot Rate Tracker
+#
+# Runs weekly. Computes:
+# - One-shot rate: % of agent PRs that merged without review-requested changes
+# - Top rejection reasons: what review comments led to changes
+# - Suggested KB additions: docs that would prevent the most common rejections
+#
+# Posts results to Slack (or as a GitHub issue if no Slack configured).
+
+name: One-Shot Rate Tracker
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9am UTC
+  workflow_dispatch:       # Manual trigger
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Collect PR data
+        id: data
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get PRs merged in the last 7 days
+          SINCE=$(date -u -d "7 days ago" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -v-7d +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "Collecting PRs merged since ${SINCE}..."
+
+          # Get merged PRs
+          gh pr list \
+            --repo ${{ github.repository }} \
+            --state merged \
+            --search "merged:>=${SINCE}" \
+            --json number,title,author,mergedAt,reviews,comments \
+            --limit 100 \
+            > /tmp/merged-prs.json
+
+          TOTAL=$(cat /tmp/merged-prs.json | jq length)
+          echo "total_prs=${TOTAL}" >> "$GITHUB_OUTPUT"
+          echo "Found ${TOTAL} merged PRs in the last 7 days"
+
+      - name: Compute one-shot rate
+        if: steps.data.outputs.total_prs > 0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # For each merged PR, check if it had "changes requested" reviews
+          # A "one-shot" PR: merged with only "approved" reviews (no changes requested)
+
+          ONE_SHOT=0
+          TOTAL=0
+          REJECTION_REASONS=""
+
+          for PR_NUMBER in $(cat /tmp/merged-prs.json | jq -r '.[].number'); do
+            TOTAL=$((TOTAL + 1))
+
+            # Check if any review requested changes
+            CHANGES_REQUESTED=$(gh api repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews \
+              --jq '[.[] | select(.state == "CHANGES_REQUESTED")] | length')
+
+            if [ "$CHANGES_REQUESTED" = "0" ]; then
+              ONE_SHOT=$((ONE_SHOT + 1))
+            else
+              # Collect the review comments for rejection analysis
+              gh api repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews \
+                --jq '.[] | select(.state == "CHANGES_REQUESTED") | .body' \
+                >> /tmp/rejection-comments.txt
+            fi
+          done
+
+          if [ "$TOTAL" -gt 0 ]; then
+            RATE=$(( (ONE_SHOT * 100) / TOTAL ))
+          else
+            RATE=0
+          fi
+
+          echo "one_shot=${ONE_SHOT}" >> "$GITHUB_OUTPUT"
+          echo "total=${TOTAL}" >> "$GITHUB_OUTPUT"
+          echo "rate=${RATE}" >> "$GITHUB_OUTPUT"
+
+          echo "=== One-Shot Rate ==="
+          echo "${ONE_SHOT}/${TOTAL} = ${RATE}%"
+
+      - name: Analyze rejection reasons
+        if: steps.data.outputs.total_prs > 0
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ ! -f /tmp/rejection-comments.txt ] || [ ! -s /tmp/rejection-comments.txt ]; then
+            echo "No rejections to analyze — 100% one-shot rate!"
+            echo "NO_REJECTIONS=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          cat > /tmp/analysis-prompt.txt << 'PROMPT'
+          Analyze these PR review comments that led to "changes requested".
+          Group them into categories and count occurrences.
+
+          Output format:
+          ## Top Rejection Reasons (last 7 days)
+
+          1. **[Category]** (N PRs) — [Brief description]
+          2. **[Category]** (N PRs) — [Brief description]
+          ...
+
+          ## Suggested KB Additions
+
+          For each rejection category, suggest a KB document that would prevent it:
+
+          - `[partition]/[filename].md` — [What it should cover]
+          PROMPT
+
+          echo "TODO: Call Claude API with rejection comments + analysis prompt"
+          echo "TODO: Save analysis to /tmp/analysis.md"
+
+      - name: Post report
+        if: steps.data.outputs.total_prs > 0
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          RATE="${{ steps.data.outputs.rate || '0' }}"
+          ONE_SHOT="${{ steps.data.outputs.one_shot || '0' }}"
+          TOTAL="${{ steps.data.outputs.total || '0' }}"
+
+          REPORT="*Agentic Engineering — Weekly Report*
+
+          *One-shot rate:* ${RATE}% (${ONE_SHOT}/${TOTAL} PRs merged without changes)
+
+          $(cat /tmp/analysis.md 2>/dev/null || echo 'No rejection analysis available.')
+
+          _View details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}_"
+
+          if [ -n "$SLACK_WEBHOOK" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data "{\"text\": \"${REPORT}\"}" \
+              "$SLACK_WEBHOOK"
+            echo "Posted to Slack"
+          else
+            # Fallback: create a GitHub issue
+            gh issue create \
+              --repo ${{ github.repository }} \
+              --title "Weekly One-Shot Report: ${RATE}% (${ONE_SHOT}/${TOTAL})" \
+              --body "${REPORT}" \
+              --label "metrics"
+            echo "Created GitHub issue (no Slack webhook configured)"
+          fi

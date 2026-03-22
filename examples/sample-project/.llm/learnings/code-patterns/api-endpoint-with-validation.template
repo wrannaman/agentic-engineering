@@ -1,0 +1,48 @@
+// Template: API Endpoint with Validation
+// Source: src/api/routes/users.ts (PR #52)
+//
+// Replace:
+//   RESOURCE      → your resource name (e.g., "orders")
+//   ResourceType  → your Zod schema type (e.g., "Order")
+//   createSchema  → your Zod validation schema
+
+import { Router } from "express";
+import { z } from "zod";
+import { authMiddleware } from "@/middleware/auth";
+import { validate } from "@/middleware/validate";
+import { AppError } from "@/utils/errors";
+import { db } from "@/lib/db";
+
+const createSchema = z.object({
+  // Define your fields here
+  name: z.string().min(1),
+});
+
+const router = Router();
+
+// GET /RESOURCE
+router.get("/RESOURCE", authMiddleware, async (req, res) => {
+  const items = await db.RESOURCE.findMany({
+    where: { orgId: req.user.orgId },
+  });
+  res.json({ data: items });
+});
+
+// POST /RESOURCE
+router.post("/RESOURCE", authMiddleware, validate(createSchema), async (req, res) => {
+  const item = await db.RESOURCE.create({
+    data: { ...req.body, orgId: req.user.orgId },
+  });
+  res.status(201).json({ data: item });
+});
+
+// GET /RESOURCE/:id
+router.get("/RESOURCE/:id", authMiddleware, async (req, res) => {
+  const item = await db.RESOURCE.findFirst({
+    where: { id: req.params.id, orgId: req.user.orgId },
+  });
+  if (!item) throw AppError.notFound("RESOURCE not found");
+  res.json({ data: item });
+});
+
+export default router;

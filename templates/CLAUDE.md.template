@@ -1,0 +1,17 @@
+# CLAUDE.md
+
+## Build & Test
+- Build: `YOUR_BUILD_COMMAND`
+- Test: `YOUR_TEST_COMMAND`
+- Lint: `YOUR_LINT_COMMAND`
+
+## Knowledge Base
+Use the `kb` MCP tools. Pass partition="YOUR_PARTITION" for this repo.
+Start by reading the index: `list_documents(partition="YOUR_PARTITION")`
+
+## Workflow
+- Use /plan before implementing any feature
+- Use /review before pushing
+- Use /compound after features are merged
+- Never push to main directly
+- All PRs are draft until a human publishes them

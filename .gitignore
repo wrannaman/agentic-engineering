@@ -1,0 +1,56 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Docker
+docker-compose.override.yml
+
+# Secrets
+*.pem
+*.key
+credentials.json
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Claude Code
+.claude/plans/
+.claude/settings.local.json
+
+# Worktrees
+.worktrees/
+
+# Blog drafts (private)
+blog/

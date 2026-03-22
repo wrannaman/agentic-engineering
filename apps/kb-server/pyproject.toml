@@ -1,0 +1,15 @@
+[project]
+name = "kb-server"
+version = "0.1.0"
+description = "Minimal MCP + REST knowledge base server with URL-based partitions"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "sqlalchemy>=2.0",
+    "mcp>=1.7.0",            # official MCP SDK (includes FastMCP)
+    "psycopg2-binary>=2.9",  # only needed for Postgres
+]
+
+[project.scripts]
+kb-server = "src.server:main"

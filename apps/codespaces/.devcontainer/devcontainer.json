@@ -1,0 +1,26 @@
+{
+  "name": "Agentic Engineering",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": ".devcontainer/post-create.sh",
+  "secrets": {
+    "KB_AUTH_TOKEN": {
+      "description": "Bearer token for the KB server"
+    }
+  },
+  "remoteEnv": {
+    "KB_SERVER_URL": "${localEnv:KB_SERVER_URL}",
+    "KB_AUTH_TOKEN": "${localEnv:KB_AUTH_TOKEN}"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropics.claude-code"
+      ]
+    }
+  }
+}

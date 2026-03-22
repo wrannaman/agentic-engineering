@@ -1,0 +1,57 @@
+services:
+  # --- SQLite mode (default, simplest) ---
+  # Just the server, no external database needed.
+  # Data stored in a Docker volume.
+
+  kb-server:
+    build: .
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-sqlite:////data/kb.db}
+      - KB_AUTH_TOKEN=${KB_AUTH_TOKEN:-}
+      - REPO_URL=${REPO_URL:-}
+      - REPO_BRANCH=${REPO_BRANCH:-main}
+      - GH_TOKEN=${GH_TOKEN:-}
+      - SYNC_INTERVAL_SECONDS=${SYNC_INTERVAL_SECONDS:-300}
+    volumes:
+      - kb-data:/data
+    profiles: ["default", "sqlite"]
+
+  # --- Postgres mode (production) ---
+  # Uncomment and run with: docker-compose --profile postgres up
+
+  # kb-server-pg:
+  #   build: .
+  #   ports:
+  #     - "${PORT:-8080}:8080"
+  #   environment:
+  #     - DATABASE_URL=postgresql://kb:kb@postgres:5432/kb
+  #     - KB_AUTH_TOKEN=${KB_AUTH_TOKEN:-}
+  #     - REPO_URL=${REPO_URL:-}
+  #     - REPO_BRANCH=${REPO_BRANCH:-main}
+  #     - GH_TOKEN=${GH_TOKEN:-}
+  #     - SYNC_INTERVAL_SECONDS=${SYNC_INTERVAL_SECONDS:-300}
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   profiles: ["postgres"]
+
+  # postgres:
+  #   image: postgres:16
+  #   environment:
+  #     POSTGRES_USER: kb
+  #     POSTGRES_PASSWORD: kb
+  #     POSTGRES_DB: kb
+  #   volumes:
+  #     - pg-data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U kb"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 5
+  #   profiles: ["postgres"]
+
+volumes:
+  kb-data:
+  # pg-data:

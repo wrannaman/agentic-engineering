@@ -1,103 +1,261 @@
+---
+name: setup
+description: "Interactive guided setup. Detects your codebase, configures MCP, writes project-specific CLAUDE.md, seeds the KB, and verifies everything works."
+---
+
 # Setup
 
-> Interactive guided setup for the entire agentic engineering stack.
+> From zero to working agentic engineering in one session.
 
-**Status:** Skeleton — full skill content coming in a later phase.
+Walk a new user through the entire stack: detect their codebase, deploy or connect to a KB server, write project-specific configuration, optionally seed the KB, and verify it all works.
 
-## Purpose
-
-Walk a new user through deploying and configuring everything — KB server, skills, repo configuration, KB seeding, and verification — interactively. The agent does the work; the user answers questions and confirms.
-
-SETUP.md is the reference. This skill is what you actually run.
+The agent does the work. The user answers questions and confirms.
 
 ## Process
 
-### Step 1: Prerequisites Check
+### Step 1: Detect the Project
 
-Verify required tools are installed:
-- [ ] Docker / Docker Compose
-- [ ] GitHub CLI (`gh`)
-- [ ] Git
-- [ ] Coding agent (Claude Code, Cursor, Codex)
+Before asking anything, scan the current directory to understand what we're working with:
 
-Report what's missing with install instructions.
+```bash
+# Detect language and framework
+ls package.json 2>/dev/null      # Node/TypeScript/JavaScript
+ls pyproject.toml 2>/dev/null     # Python
+ls *.csproj *.sln 2>/dev/null     # .NET/C#
+ls go.mod 2>/dev/null             # Go
+ls Cargo.toml 2>/dev/null         # Rust
+ls pom.xml build.gradle 2>/dev/null  # Java/Kotlin
 
-### Step 2: Deploy KB Server
+# Detect build/test commands
+cat package.json | jq '.scripts' 2>/dev/null   # npm/yarn scripts
+cat Makefile 2>/dev/null | head -20             # Make targets
+ls Dockerfile docker-compose.yml 2>/dev/null    # Docker
 
-Ask: "Where do you want to deploy the KB server?"
-- **Local (docker-compose)** — Run `docker-compose up -d` in `apps/kb-server/`
-- **Cloud (Railway/Fly.io)** — Guide through deploy steps
-- **Already deployed** — Ask for URL and verify health
+# Detect existing agent config
+ls CLAUDE.md .cursorrules AGENTS.md .cursor/ .codex/ 2>/dev/null
 
-Verify: `curl $KB_SERVER_URL/health` returns healthy.
+# Detect git info
+git remote get-url origin 2>/dev/null
+git branch --show-current
+```
 
-### Step 3: Authentication
+**Present findings:**
+```
+## Project Detected
 
-Generate a strong auth token. Save to `.env`. Configure the KB server.
+Language:   TypeScript (React + Node.js)
+Build:      npm run build
+Test:       npm test
+Lint:       npm run lint
+Framework:  Next.js 15
+Git remote: github.com/yourorg/yourapp
+Agent:      Claude Code (CLAUDE.md exists but is empty)
 
-### Step 4: Install Skills
+Is this correct? [Y/n]
+```
 
-Run `skills/install.sh` — auto-detects agent runtime.
+If wrong, ask the user to correct. If no project is detected (empty directory), note that and continue — they may be setting up the KB server first.
 
-Verify: Skills are recognized by the agent.
+### Step 2: KB Server Connection
 
-### Step 5: Configure Project Repos
+Ask ONE question:
 
-Ask: "Which repos do you want to set up?"
+```
+Do you have a KB server running?
+  1. Yes — I'll give you the URL
+  2. No — help me deploy one
+  3. Skip for now — I'll set it up later
+```
 
-For each repo:
-- Write `CLAUDE.md` (or `AGENTS.md`) from template
-- Write `.mcp.json` from template, configured with KB server URL and token
-- Create `.llm/learnings/` directory structure
+**If yes:**
+- Ask for the URL
+- Ask for the auth token (or help them set an env var)
+- Verify: `curl -H "Authorization: Bearer $TOKEN" $URL/health`
+- If healthy, continue. If not, debug.
 
-### Step 6: Seed the Knowledge Base
+**If no:**
+- Ask: "Deploy locally with Docker, or skip and use the KB server later?"
+- If Docker:
+  ```bash
+  cd apps/kb-server
+  cp .env.example .env
+  # Help them edit .env with a generated token
+  docker-compose up -d
+  ```
+- Verify health endpoint
 
-Ask: "Do you have existing docs, or start with examples?"
+**If skip:**
+- Continue without KB. Skills still work — they just don't load KB context. Note this in the summary.
 
-- **Examples** — Copy `examples/seed-kb/` into a new partition
-- **Existing docs repo** — Configure KB server to sync it
-- **Start empty** — Skip (not recommended)
+### Step 3: Configure MCP Connection
 
-### Step 7: Configure Hooks (Optional)
+If KB server is connected, write `.mcp.json` in the project root:
 
-Ask: "Set up enforcement hooks?"
+```json
+{
+  "mcpServers": {
+    "kb": {
+      "type": "http",
+      "url": "KB_SERVER_URL/mcp",
+      "headers": {
+        "Authorization": "Bearer TOKEN"
+      }
+    }
+  }
+}
+```
 
-If yes, install:
-- session-compound (recommended)
-- pr-workflow (recommended)
-- Others as desired
+Use the actual URL and token from Step 2. Ask which env var name they want for the token (default: `KB_AUTH_TOKEN`).
 
-### Step 8: Verification
+Also check if they need to add the MCP server to their agent:
+```bash
+# For Claude Code
+claude mcp add --transport http kb $KB_URL --header "Authorization: Bearer $TOKEN"
+```
 
-Run end-to-end check:
-1. List KB documents via MCP — confirm docs are indexed
-2. Confirm skills are loaded — list available skills
-3. Run a test brainstorm — verify KB context is loaded
+### Step 4: Write Project-Specific CLAUDE.md
+
+Using the project detection from Step 1, generate a `CLAUDE.md` tailored to this project:
+
+```markdown
+# CLAUDE.md
+
+## Build & Test
+- Build: `[detected build command]`
+- Test: `[detected test command]`
+- Lint: `[detected lint command]`
+
+## Knowledge Base
+Use the `kb` MCP tools. Pass partition="[detected or asked partition]" for this repo.
+Start by reading the index: `list_documents(partition="[partition]")`
+
+## Workflow
+- Use /plan before implementing any feature
+- Use /review before pushing
+- Use /compound after features are merged
+- Never push to main directly
+- All PRs are draft until a human publishes them
+```
+
+**If a CLAUDE.md already exists:**
+- Read it
+- Ask: "You have an existing CLAUDE.md. Want me to merge the KB instructions into it, or replace it?"
+
+**If the user uses Cursor:**
+- Also write equivalent `.cursorrules` or offer to
+
+**If the user uses Codex:**
+- Write `AGENTS.md` instead
+
+### Step 5: Determine KB Partition
+
+If KB is connected:
+
+```
+What should the KB partition be for this repo?
+
+Your KB server has these partitions: [list from API]
+  - frontend (42 docs)
+  - backend (18 docs)
+  - infra (5 docs)
+
+Or create a new partition by naming it (partitions = folders in your KB docs repo).
+
+Partition for this repo: [suggestion based on detected language/framework]
+```
+
+If no KB partitions exist yet, suggest one based on the project type.
+
+### Step 6: Create Learnings Directory
+
+```bash
+mkdir -p .llm/learnings/gotchas
+mkdir -p .llm/learnings/patterns
+mkdir -p .llm/learnings/code-patterns
+mkdir -p .llm/learnings/debug-patterns
+```
+
+Add to `.gitignore` if not already there:
+```
+# Agent plans (ephemeral)
+.claude/plans/
+```
+
+Note: `.llm/learnings/` should be committed — these are project-specific patterns that persist.
+
+### Step 7: Seed the KB (Optional)
+
+If KB is connected and the partition is empty:
+
+```
+Your KB partition "[partition]" has 0 documents. Want to seed it?
+
+  1. Run /seed — auto-generate KB docs from this codebase (recommended)
+  2. Copy example docs — start with generic templates
+  3. Skip — I'll add docs manually later
+```
+
+If they choose `/seed`, invoke it. If examples, copy from `examples/seed-kb/` and adapt the partition.
+
+### Step 8: Verify Everything
+
+Run checks in sequence:
+
+```
+## Verification
+
+1. KB Server health............. ✅ healthy (https://kb.company.com)
+2. MCP connection............... ✅ 3 tools available (list_documents, read_document, search_documents)
+3. KB partition................. ✅ "frontend" — 42 documents indexed
+4. CLAUDE.md.................... ✅ written with build/test/lint + KB config
+5. .mcp.json.................... ✅ configured with KB URL + auth
+6. .llm/learnings/.............. ✅ directory structure created
+7. Skills installed............. ✅ 20 skills recognized
+```
+
+If any check fails, explain what went wrong and how to fix it.
 
 ### Step 9: Summary
 
 ```
-=== Setup Complete ===
+## Setup Complete
 
-KB Server:     https://your-server:8080 ✅
-Skills:        16 installed ✅
-Repos:         2 configured ✅
-KB Documents:  12 indexed ✅
-Hooks:         2 active ✅
+Project:       yourorg/yourapp (TypeScript/React)
+KB Server:     https://kb.company.com ✅
+KB Partition:  frontend (42 docs)
+MCP:           .mcp.json configured ✅
+Agent Config:  CLAUDE.md written ✅
+Learnings:     .llm/learnings/ created ✅
+Skills:        20 installed ✅
 
-Try: /brainstorm <your first feature>
+### What's Ready
+- /plan, /work, /review, /compound — the full cycle
+- /ship — plan+implement+review+push in one shot
+- /seed — generate more KB docs from your codebase
+- /debug — parallel bug investigation
+
+### Recommended First Steps
+1. Run /plan on a small feature to test the cycle
+2. After the PR merges, run /compound to extract learnings
+3. Have your senior engineers review and add to the KB partition
+
+### If the KB is empty
+Run /seed to auto-generate starter docs from your codebase.
+Your senior engineers should review the drafts before they go into the KB.
 ```
 
 ## When to Use
 
-- First-time setup of the agentic engineering stack
-- Adding a new team member
-- Configuring a new project repo
-- Re-running after upgrading
+- First-time setup of agentic engineering in a project
+- Configuring a new repo to use an existing KB server
+- Onboarding a new team member (run `/setup` in each repo they work in)
+- After cloning the agentic-eng repo for the first time
 
 ## Hard Rules
 
-- Never skip the verification step
-- Always generate strong auth tokens (not "password123")
-- Always verify KB connectivity before declaring success
-- If any step fails, stop and help the user fix it before continuing
+- Never skip verification (Step 8)
+- Never hardcode tokens in files — use env vars
+- If CLAUDE.md exists, ask before overwriting
+- If .mcp.json exists, ask before overwriting
+- Always detect the project before asking questions (Step 1 before Step 2)
+- If a step fails, stop and fix it before continuing

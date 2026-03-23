@@ -1,4 +1,6 @@
-# Agentic Engineering
+# Agentic Engineering — The AX Stack
+
+> AX (Agent Experience) is the new DX. UX was for users. DX was for developers. AX is for agents. This is the complete AX stack for engineering teams.
 
 Your engineering team ships 50 features a month. 40 of them follow patterns you've already established — new endpoints that look like existing endpoints, pages that look like existing pages, bug fixes, config changes, copy updates. Your senior engineers spend most of their time on work that's beneath their skill level, not because it's easy, but because nobody else can do it.
 

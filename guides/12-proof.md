@@ -96,6 +96,18 @@ Built their own internal coding agent called Goose. Part of a trend where large 
 
 **Source:** [Vercel blog](https://vercel.com/blog/agents-md-outperforms-skills-in-our-agent-evals)
 
+### SaaStr — "Agentic Deployment Expert" (March 2026)
+
+Jason Lemkin's framing of the current moment, based on reviewing companies crossing $100M+:
+
+- **Three eras of AI:** (1) had to be deeply technical (2023), (2) "weird prompt engineer era" (2024), (3) "ordinarily smart generalists can make AI agents do genuinely magical things" (now). No contorted prompts. No engineering degree. Just deployment skills.
+- **The interview question that matters:** "What commercial AI agent or tool with real ROI have you brought into your organization in the last 30 days?" Not played with. Not demoed. Actually deployed. "Anyone genuinely operating at the cutting edge will light up answering this."
+- **At even the best startups, maybe 30% of the management team clears this bar. In general interviews, it's single digits.**
+- **The value is not in building AI. It's in deploying it.** "Identifying which products will improve your specific workflows, getting them into your organization, training them properly, and measuring the output."
+- **Training is the step teams skip:** A $6B AI company's own agent was quoting incorrect pricing for a year because nobody trained it properly. "That is what it looks like when smart people don't treat deployment as seriously as they treat building."
+
+**Source:** [SaaStr — "To Thrive Today, You Have to Become An Agentic Deployment Expert"](https://www.saastr.com/to-thrive-today-you-have-to-become-an-agentic-deployment-expert-but-so-so-few-actually-are/)
+
 ---
 
 ## The Trend

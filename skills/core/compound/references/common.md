@@ -27,6 +27,20 @@ mkdir -p "$LEARNINGS_DIR"
 - Prefer exact user quotes, review comments, file paths, and command outputs.
 - Distinguish recurring patterns from one-off incidents.
 
+## CRITICAL: Edit, Don't Add
+
+The KB's biggest failure mode is bloat. The compound loop naturally wants to ADD new docs. Fight this.
+
+**Before creating any new KB doc or learning file:**
+1. Search the KB for existing docs on this topic (`search_documents` with relevant keywords)
+2. Search `.llm/learnings/` locally for existing files on this topic
+3. If a related doc exists → propose an EDIT to that doc (add a section, update a paragraph, refine the wording)
+4. Only create a new doc if nothing related exists after searching
+
+**Think wiki, not blog.** A wiki has one page about error handling that gets refined. A blog has 12 posts about error handling that nobody can navigate.
+
+**Precision over coverage.** A 10-line addition to an existing doc is better than a new 50-line doc that overlaps with three others.
+
 ## Routing Outcomes
 
 For each finding, route to one or more destinations:

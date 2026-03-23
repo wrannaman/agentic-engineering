@@ -166,6 +166,45 @@ Partition for this repo: [suggestion based on detected language/framework]
 
 If no KB partitions exist yet, suggest one based on the project type.
 
+### Step 5b: Configure the Compound Loop Target
+
+The compound skill needs to know where to send team-wide learnings. Ask:
+
+```
+Where does your KB content live? (This is where /compound will create PRs)
+
+  1. A GitHub repo — give me the org/repo (e.g., yourorg/kb-docs)
+  2. Same repo as the code — KB docs live alongside the code
+  3. I'll configure this later
+```
+
+**If a GitHub repo:**
+- Record the repo as `KB_DOCS_REPO` (e.g., `yourorg/kb-docs`)
+- Verify the user has push access: `gh repo view $KB_DOCS_REPO --json name`
+- Write this to the project config so `/compound` knows where to PR:
+
+Add to `CLAUDE.md`:
+```markdown
+## Compound Loop
+When /compound finds team-wide learnings, create a PR to `KB_DOCS_REPO`.
+Target the partition folder matching this repo (e.g., `frontend/`).
+```
+
+**If same repo:**
+- Learnings go into a `kb/` directory in the project repo
+- Compound creates PRs to the same repo
+
+**Critical: also add the "edit not add" instruction to CLAUDE.md:**
+```markdown
+## KB Writing Rules
+When adding to the knowledge base, ALWAYS search for existing docs on the topic first.
+If a related doc exists, propose an EDIT (add a section, update a paragraph).
+Only create a new doc if nothing related exists.
+Favor surgical precision over comprehensive coverage. Think wiki, not blog.
+```
+
+This ensures the compound loop doesn't just pile on new docs forever.
+
 ### Step 6: Create Learnings Directory
 
 ```bash

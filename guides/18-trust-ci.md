@@ -18,7 +18,7 @@ It means you can push to main and deploy to production with confidence, multiple
 - Build (if it doesn't compile, it doesn't ship)
 
 **What most teams are missing:**
-- Visual regression testing (agents can't judge if the UI "looks right")
+- Visual regression testing (LLM-as-judge on screenshots, or pixel-diff tools)
 - Browser-based E2E tests (agents can verify behavior, not just rendering)
 - Contract tests (if service A changed the response shape, service B's tests should break)
 - Database migration validation (does the migration lock critical tables? Does it work on the production data shape, not just the test fixture?)

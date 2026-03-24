@@ -6,7 +6,7 @@ A knowledge base server, 20 agent skills, 5 enforcement hooks, a compound learni
 
 Works with any coding agent: Claude Code, Cursor, Codex, GitHub Copilot. GitHub-first, adaptable to GitLab/Bitbucket/ADO.
 
-**[Read the blog post →](https://blog.andrewpierno.com)** for the full story, evidence, and predictions.
+**[Read the blog post →](https://blog.andrewpierno.com/agentic-engineering-the-ax-stack/)** for the full story, evidence, and predictions.
 
 ## Quick Start
 
@@ -112,7 +112,7 @@ Or for well-scoped tasks: `/ship` (runs the whole thing uninterrupted).
 ## Where This Falls Short
 
 - **Cold start is real.** First 2 weeks = senior engineers writing KB docs.
-- **Visual verification is a gap.** Agents can't judge UI quality (yet).
+- **Visual verification needs judges.** LLMs can evaluate screenshots, but you need to set up LLM-as-judge pipelines (LangFuse or similar) to make this automated and reliable.
 - **Novel architecture is hard to one-shot.** Agents follow patterns, not create them.
 - **Review bandwidth is the bottleneck.** Automate everything else, invest in reviewers.
 

@@ -247,7 +247,7 @@ See [guides/01-philosophy.md](guides/01-philosophy.md) for the full reasoning be
 
 ---
 
-## Where This Falls Short (Honest Assessment)
+## Where This Falls Short
 
 - **Cold start is real.** The first 2 weeks require intentional effort from senior engineers writing KB docs. Most teams underinvest here.
 - **Visual verification is a gap.** Agents can't reliably judge UI quality from screenshots (yet). Human-in-the-loop for visual stuff.

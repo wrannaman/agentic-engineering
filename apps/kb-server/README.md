@@ -30,7 +30,7 @@ kb-docs/
     └── database.md
 ```
 
-Every MCP tool accepts an optional `partition` parameter to scope results. In your `CLAUDE.md`, tell the agent which partition to use:
+Every MCP tool accepts an optional `partition` parameter to scope results. In your agent instructions file (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, etc.), tell the agent which partition to use:
 
 ```markdown
 ## Knowledge Base

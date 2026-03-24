@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 This repo is an agentic engineering architecture. Part docs, part code, part skills.
 

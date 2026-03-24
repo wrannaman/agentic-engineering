@@ -37,7 +37,7 @@ kb-docs/
 - Adding a partition = creating a folder in the docs repo
 - Agents pass `partition="frontend"` to scope tool results
 - Leave partition empty to search everything
-- CLAUDE.md tells the agent which partition to use for the repo
+- Your agent instructions file (AGENTS.md, CLAUDE.md, .cursorrules, etc.) tells the agent which partition to use
 
 ### C6: Git-Backed Content Sync
 

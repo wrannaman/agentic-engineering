@@ -76,29 +76,56 @@ Do you have a KB server running?
 
 **If local (the solo developer path):**
 
-This is the zero-friction path. No Docker, no cloud, no auth token. Just Python and a local directory of markdown files.
+This is the zero-friction path. No Docker, no cloud, no auth token. Just Python and a folder of markdown files.
 
+Most people will just use this repo itself as their KB — add docs to `examples/seed-kb/` or create a new folder. Walk them through it:
+
+```
+Where do you want to keep your KB docs?
+
+  1. Right here in this repo (easiest — start adding to examples/seed-kb/)
+  2. A separate folder I already have
+  3. I'll create one later
+```
+
+**If "right here in this repo" (most common):**
+
+The `examples/seed-kb/` folder already has starter docs. They can add their own alongside them, or create new partition folders:
+
+```
+examples/seed-kb/
+├── coding-standards/     ← add your team's standards here
+├── architecture/         ← add your architecture docs here
+├── workflows/            ← add your workflow docs here
+└── my-project/           ← create new folders for new partitions
+```
+
+Set up and start the server:
 ```bash
 cd apps/kb-server
 python -m venv .venv && source .venv/bin/activate
 pip install -e .
+
+# Point at the seed-kb folder in this repo
+REPOS="kb:../../examples/seed-kb" python -m src.server
 ```
 
-Create a local KB docs directory (or use the examples):
+**If "a separate folder":**
 ```bash
-# Option A: start with the example seed docs
-cp -r ../../examples/seed-kb ~/kb-docs
+cd apps/kb-server
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
 
-# Option B: point at an existing docs directory
-# (any folder of markdown files works)
+REPOS="kb:/path/to/their/docs" python -m src.server
 ```
 
-Start the server:
+**Either way:** Server runs at `localhost:8080`. No auth needed locally. SQLite. The agent connects to `http://localhost:8080/mcp`. Add or edit markdown files anytime — the server re-indexes every 5 minutes, or hit `localhost:8080/api/sync` to force it.
+
+Help them start the server in the background so it persists:
 ```bash
-REPOS="kb:$HOME/kb-docs" DATABASE_URL="sqlite:///kb.db" python -m src.server
+REPOS="kb:../../examples/seed-kb" nohup python -m src.server > /tmp/kb-server.log 2>&1 &
+echo "KB server running at http://localhost:8080"
 ```
-
-That's it. Server runs at `localhost:8080`. No auth needed for local use (leave `KB_AUTH_TOKEN` empty). SQLite database in the current directory. The agent connects to `http://localhost:8080/mcp`.
 
 To keep it running in the background:
 ```bash

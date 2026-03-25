@@ -56,9 +56,41 @@ That's the entire quick path. No more questions. They're up and running.
 
 **If "set this up for real":** Continue to Step 1.
 
-### Step 1: Detect the Project
+### Step 1: Where Am I?
 
-Before asking anything, scan the current directory to understand what we're working with:
+First, figure out if the user is in the agentic-eng repo or in their own project:
+
+```bash
+# Check if we're in the agentic-eng repo itself
+ls apps/kb-server/src/server.py 2>/dev/null && ls skills/core/plan/SKILL.md 2>/dev/null
+```
+
+**If we're in the agentic-eng repo:**
+
+They just cloned it. They need to:
+1. Start the KB server (done in Step 0 quick path, or Step 2 full path)
+2. Install skills into their agent
+3. Then go to their actual project and configure it
+
+```
+It looks like you're in the agentic-eng repo itself — not a project you want to configure.
+
+Let's get you set up:
+  1. ✅ Start the KB server (done — or we'll do it in Step 2)
+  2. Install skills: cd skills && ./install.sh
+  3. Go to your project: cd /path/to/your/project
+  4. Run /setup again from there to configure your project
+
+What's the path to the project you want to configure?
+```
+
+If they give a path, `cd` there and continue to project detection. If they don't have a project yet or just want to explore, point them at `examples/sample-project/` — it's a minimal project with AGENTS.md and .mcp.json already configured.
+
+**If we're in a real project:** Continue to project detection.
+
+### Step 1b: Detect the Project
+
+Scan the current directory:
 
 ```bash
 # Detect language and framework

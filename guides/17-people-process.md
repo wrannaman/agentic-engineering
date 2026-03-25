@@ -68,7 +68,7 @@ Plans (`.plans/YYYY-MM-DD-feature.md`) and design docs are working artifacts. Th
 
 **After merge:** The plan's value has been consumed. The code exists. The learnings have been extracted by `/compound`. The plan itself is ephemeral.
 
-**Exception: Technical Design Documents (TDDs/ADRs).** These are different from plans. They document *why* a decision was made, not *how* to implement it. These should be committed to a `decisions/` directory and kept permanently. They're reference material, not instructions.
+**Exception: Design specs and ADRs.** These are different from plans. They document *why* a decision was made, not *how* to implement it. These should be committed to a `decisions/` directory and kept permanently. They're reference material, not instructions.
 
 **The heuristic:** If someone would usefully read this document 6 months from now, commit it. If it's only useful during implementation, don't.
 
@@ -76,7 +76,7 @@ Plans (`.plans/YYYY-MM-DD-feature.md`) and design docs are working artifacts. Th
 |----------|---------|-------|
 | Plan (`.plans/*.md`) | No | Local, gitignored |
 | Design doc (from `/brainstorm`) | Maybe | If it captures decisions, commit to `decisions/` |
-| TDD/ADR (from `/tdd`) | Yes | `decisions/YYYY-MM-DD-*.md` |
+| Design spec (from `/spec`) | Yes | `decisions/YYYY-MM-DD-*.md` |
 | KB docs | Yes (to KB docs repo) | Reviewed via PR |
 | Learnings (`.llm/learnings/`) | Yes (to project repo) | Committed alongside code |
 

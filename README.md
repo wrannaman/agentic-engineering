@@ -54,7 +54,7 @@ Minimal MCP + REST knowledge base. Official MCP Python SDK, FastAPI, SQLAlchemy 
 | `/debug` | Diagnosis doc from parallel bug investigation |
 | `/ship` | Plan → implement → review → fix → push in one shot |
 
-Plus: `stack-pr`, `pr-push`, `worktree`, `rebase-fix`, `git-cleanup`, `deslop`, `simplify`, `github-review`, `gh-summary`, `tdd`, `adversarial`.
+Plus: `stack-pr`, `pr-push`, `worktree`, `rebase-fix`, `git-cleanup`, `deslop`, `simplify`, `github-review`, `gh-summary`, `spec`, `adversarial`.
 
 [Full catalog →](skills/README.md)
 

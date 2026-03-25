@@ -51,7 +51,7 @@ The essential cycle. Every feature goes through this.
 | Skill | Purpose |
 |-------|---------|
 | [gh-summary](analysis/gh-summary/) | Summarize merged PRs |
-| [tdd](analysis/tdd/) | Write technical design documents |
+| [spec](analysis/spec/) | Write design specs and ADRs |
 | [adversarial](analysis/adversarial/) | Adversarial design critique |
 
 ### Hooks

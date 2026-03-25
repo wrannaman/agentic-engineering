@@ -136,7 +136,7 @@ SKILL_DIRS=(
   "quality/simplify"
   "quality/github-review"
   "analysis/gh-summary"
-  "analysis/tdd"
+  "analysis/spec"
   "analysis/adversarial"
 )
 

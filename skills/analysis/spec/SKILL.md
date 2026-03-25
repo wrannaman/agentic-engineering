@@ -1,16 +1,16 @@
 ---
-name: tdd
-description: Write excellent Technical Design Documents (TDDs/ADRs) with deep research and gotcha hunting.
+name: spec
+description: Write design specs and architecture decision records (ADRs) with deep research and gotcha hunting.
 version: 1.0.0
 ---
 
-# Technical Design Document (TDD) Writer
+# Design Spec Writer
 
-You are helping the user write an excellent Technical Design Document (TDD), which will be saved as an Architecture Decision Record (ADR) in the `decisions/` directory.
+You are helping the user write an excellent design spec, which will be saved as an Architecture Decision Record (ADR) in the `decisions/` directory.
 
 ## Your Role
 
-You are NOT writing the TDD for the user. Instead, you are **ACTIVELY** guiding them to make better decisions:
+You are NOT writing the spec for the user. Instead, you are **ACTIVELY** guiding them to make better decisions:
 
 1. **Deep Research** - Don't just find patterns, INVESTIGATE approaches to uncover thorny edges
 2. **Proactive Gotcha Hunting** - Before suggesting any approach, research what could go wrong
@@ -20,9 +20,9 @@ You are NOT writing the TDD for the user. Instead, you are **ACTIVELY** guiding 
 
 **BE ACTIVE, NOT PASSIVE.** Don't just present options neutrally - dig into them, find the edge cases, identify what MUST be validated, and recommend the validation approach.
 
-## Four Pillars of a Great TDD
+## Four Pillars of a Great Spec
 
-Every excellent TDD has these four qualities:
+Every excellent spec has these four qualities:
 
 1. **Good Background** - Written as if the reader knows nothing about the domain. An AI agent should be able to ingest it easily.
    - Explain the domain from first principles — what makes it unique?
@@ -38,14 +38,14 @@ Every excellent TDD has these four qualities:
 
 ## Incorporating Learnings
 
-**CRITICAL**: At the start of EVERY TDD session, search the learnings library for relevant patterns.
+**CRITICAL**: At the start of EVERY spec session, search the learnings library for relevant patterns.
 
 ### What to Search For
 
 Look for learnings related to:
-- `#tdd`, `#adr`, `#documentation`, `#design-doc` - General TDD writing guidance
+- `#spec`, `#adr`, `#documentation`, `#design-doc` - General spec writing guidance
 - `#architecture`, `#design-patterns` - Architectural decision-making
-- Specific domain tags relevant to the TDD topic (e.g., `#auth`, `#database`, `#api`)
+- Specific domain tags relevant to the spec topic (e.g., `#auth`, `#database`, `#api`)
 
 ### How to Use Learnings
 
@@ -57,21 +57,21 @@ Look for learnings related to:
 ### Example Search
 
 ```bash
-# At the start of a TDD about authentication
+# At the start of a spec about authentication
 cm search "authentication OR auth" --tags
 cm search "security" --tags
-cm search "tdd OR adr" --tags
+cm search "spec OR adr" --tags
 ```
 
-Apply any relevant patterns to improve the TDD quality automatically.
+Apply any relevant patterns to improve the spec quality automatically.
 
 ## Your Process
 
 ### Phase 0: Load Learnings (ALWAYS DO THIS FIRST)
 
 **Before engaging with the user**, search the learnings library:
-1. Search for `#tdd`, `#adr`, `#documentation` tags
-2. Search for domain-specific tags related to the TDD topic
+1. Search for `#spec`, `#adr`, `#documentation` tags
+2. Search for domain-specific tags related to the spec topic
 3. Review relevant patterns to inform your approach
 4. Keep these learnings in mind throughout the session
 
@@ -215,8 +215,8 @@ await foreach (var evt in workflow.WatchStreamAsync())
 ```
 This ~50 line test validated that events DON'T block, preventing the team from building a solution that wouldn't work!
 
-**3. Document Validation in TDD**
-Include a "Validation Approach" section in the TDD:
+**3. Document Validation in Spec**
+Include a "Validation Approach" section in the spec:
 ```markdown
 ## Validation Approach
 
@@ -248,7 +248,7 @@ Before full implementation, we should validate:
 
 ### Phase 4: Organize Into Coherent Draft
 
-Help structure the TDD with these sections (adapt as needed):
+Help structure the spec with these sections (adapt as needed):
 
 ```markdown
 # [Title]
@@ -370,7 +370,7 @@ Help structure the TDD with these sections (adapt as needed):
 
 ## Output
 
-When the TDD is ready, save it to:
+When the spec is ready, save it to:
 ```
 decisions/YYYY-MM-DD-descriptive-title.md
 ```
@@ -381,10 +381,10 @@ Example: `decisions/2026-01-19-citus-sharding.md`
 
 ## After Completion: Suggest Compounding
 
-After the TDD is complete and the user is satisfied, suggest they run `/compound`:
+After the spec is complete and the user is satisfied, suggest they run `/compound`:
 
 ```
-Great work on this TDD!
+Great work on this spec!
 
 To help future TDDs automatically improve, consider running:
 /compound
@@ -395,7 +395,7 @@ This will extract learnings like:
 - Validation techniques that caught issues
 - Patterns worth documenting
 
-Tag suggestions: #tdd, #adr, #architecture, #<domain>
+Tag suggestions: #spec, #adr, #architecture, #<domain>
 ```
 
 ## Example: Drew's Citus TDD
@@ -426,13 +426,13 @@ Study this example to understand the quality bar.
 
 ## Continuous Improvement Loop
 
-The more TDDs written, the better they become:
+The more specs written, the better they become:
 
-1. **Start** → Search learnings for `#tdd` patterns (you do this)
+1. **Start** → Search learnings for `#spec` patterns (you do this)
 2. **Write** → Apply learnings to guide research and validation (you do this)
 3. **Complete** → Suggest `/compound` to extract learnings (user does this)
 4. **Next TDD** → Automatically incorporate improved patterns (flywheel repeats)
 
-This creates a flywheel where TDD quality continuously improves over time, powered by the compound skill's learning extraction.
+This creates a flywheel where spec quality continuously improves over time, powered by the compound skill's learning extraction.
 
 Let's write something GREAT.

@@ -63,25 +63,57 @@ Ask ONE question:
 ```
 Do you have a KB server running?
   1. Yes — I'll give you the URL
-  2. No — help me deploy one
-  3. Skip for now — I'll set it up later
+  2. No, run it locally (recommended for solo / trying it out)
+  3. No, deploy with Docker (for teams / production)
+  4. Skip for now — I'll set it up later
 ```
 
-**If yes:**
+**If yes (remote):**
 - Ask for the URL
 - Ask for the auth token (or help them set an env var)
 - Verify: `curl -H "Authorization: Bearer $TOKEN" $URL/health`
 - If healthy, continue. If not, debug.
 
-**If no:**
-- Ask: "Deploy locally with Docker, or skip and use the KB server later?"
-- If Docker:
-  ```bash
-  cd apps/kb-server
-  cp .env.example .env
-  # Help them edit .env with a generated token
-  docker-compose up -d
-  ```
+**If local (the solo developer path):**
+
+This is the zero-friction path. No Docker, no cloud, no auth token. Just Python and a local directory of markdown files.
+
+```bash
+cd apps/kb-server
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+```
+
+Create a local KB docs directory (or use the examples):
+```bash
+# Option A: start with the example seed docs
+cp -r ../../examples/seed-kb ~/kb-docs
+
+# Option B: point at an existing docs directory
+# (any folder of markdown files works)
+```
+
+Start the server:
+```bash
+REPOS="kb:$HOME/kb-docs" DATABASE_URL="sqlite:///kb.db" python -m src.server
+```
+
+That's it. Server runs at `localhost:8080`. No auth needed for local use (leave `KB_AUTH_TOKEN` empty). SQLite database in the current directory. The agent connects to `http://localhost:8080/mcp`.
+
+To keep it running in the background:
+```bash
+REPOS="kb:$HOME/kb-docs" DATABASE_URL="sqlite:///kb.db" nohup python -m src.server &
+```
+
+Add docs to `~/kb-docs/` anytime. The server re-indexes every 5 minutes (configurable via `SYNC_INTERVAL_SECONDS`), or hit `/api/sync` to force it.
+
+**If Docker (teams):**
+```bash
+cd apps/kb-server
+cp .env.example .env
+# Edit .env: set REPOS, optionally set KB_AUTH_TOKEN
+docker-compose up -d
+```
 - Verify health endpoint
 
 **If skip:**

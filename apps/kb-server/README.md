@@ -4,16 +4,28 @@ A minimal MCP + REST knowledge base server. ~500 lines of Python. Full-text sear
 
 **Stack:** FastAPI + official MCP Python SDK, SQLAlchemy (SQLite or Postgres — one env var), git clone + pull for sync.
 
-## Quick Start
+## Quick Start (Local — no Docker)
 
 ```bash
-cp .env.example .env
-# Edit .env: set REPO_URL to your docs repo, set KB_AUTH_TOKEN
-docker-compose up -d
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+
+# Point at any folder of markdown files
+REPOS="docs:~/my-kb-docs" python -m src.server
 
 # Verify
 curl http://localhost:8080/health
 # → {"status": "healthy"}
+```
+
+Runs on SQLite by default. No auth needed locally (leave `KB_AUTH_TOKEN` empty). Add markdown files to your docs folder anytime — the server re-indexes every 5 minutes.
+
+## Quick Start (Docker — teams)
+
+```bash
+cp .env.example .env
+# Edit .env: set REPOS, optionally set KB_AUTH_TOKEN
+docker-compose up -d
 ```
 
 ## Partitioning

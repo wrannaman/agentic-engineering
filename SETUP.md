@@ -18,29 +18,36 @@ git clone <repo-url> agentic-eng
 cd agentic-eng
 ```
 
-### 2. Deploy the Knowledge Base Server
+### 2. Start the Knowledge Base Server
 
-The KB server is the team's shared brain. Agents connect to it via MCP to retrieve coding standards, architecture decisions, and learnings.
+The KB server gives your agents access to your team's documentation via MCP.
+
+#### Option A: Local (solo / trying it out — no Docker needed)
+
+```bash
+cd apps/kb-server
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+
+# Start with example docs (or point REPOS at your own markdown folder)
+REPOS="kb:../../examples/seed-kb" python -m src.server
+```
+
+That's it. Runs at `localhost:8080`. SQLite. No auth needed locally.
+
+#### Option B: Docker (teams / production)
 
 ```bash
 cd apps/kb-server
 cp .env.example .env
-# Edit .env with your configuration (see below)
+# Edit .env: set REPOS, optionally set KB_AUTH_TOKEN
 docker-compose up -d
 ```
 
-**Required environment variables:**
-
-| Variable | Purpose |
-|----------|---------|
-| `KB_AUTH_TOKEN` | Bearer token for MCP/API authentication |
-| `DATABASE_URL` | PostgreSQL connection string |
-| `GH_TOKEN` | GitHub PAT for repo sync (read access to docs repos) |
-
-**Verify it's running:**
+#### Verify
 
 ```bash
-curl -H "Authorization: Bearer $KB_AUTH_TOKEN" https://your-server/health
+curl http://localhost:8080/health
 # Expected: {"status": "healthy"}
 ```
 

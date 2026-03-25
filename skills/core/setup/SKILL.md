@@ -13,6 +13,49 @@ The agent does the work. The user answers questions and confirms.
 
 ## Process
 
+### Step 0: Quick or Full?
+
+Before anything else, ask ONE question:
+
+```
+What are you looking to do?
+
+  1. Just try it out — get a local KB running with the example docs in 2 minutes
+  2. Set this up for real — connect to my codebase, configure everything properly
+```
+
+**If "just try it out" (the quick path):**
+
+Skip everything and do this:
+
+```bash
+cd apps/kb-server
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+REPOS="kb:../../examples/seed-kb" python -m src.server &
+```
+
+Then configure the agent to connect:
+```bash
+# For Claude Code:
+claude mcp add --transport http kb http://localhost:8080/mcp
+```
+
+Done. Say:
+```
+KB server running at http://localhost:8080 with 5 example docs.
+Try: list_documents() to see what's in the KB.
+
+When you're ready to add your own docs, just drop markdown files into
+examples/seed-kb/ (or any folder) and hit localhost:8080/api/sync.
+
+Run /setup again and pick option 2 when you want the full configuration.
+```
+
+That's the entire quick path. No more questions. They're up and running.
+
+**If "set this up for real":** Continue to Step 1.
+
 ### Step 1: Detect the Project
 
 Before asking anything, scan the current directory to understand what we're working with:
